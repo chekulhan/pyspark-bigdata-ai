@@ -1,4 +1,8 @@
-# CELL 1:
+# if using google colab
+# CELL 1: 
+!pip install pyspark
+
+# CELL 2: 
 from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.master("local").appName("Colab").config('spark.ui.port', '4050').getOrCreate()
@@ -6,6 +10,8 @@ spark = SparkSession.builder.master("local").appName("Colab").config('spark.ui.p
 from pyspark.sql.functions import count, when, trim, length, lit, lpad, col, to_date, substring,date_format, concat
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType, DateType, DecimalType
 from datetime import datetime
+
+# CELL 3: 
 
 expected_data=[("Brooke", "20.91", "000000145", "MAC",None,"N", None, "19760201", "19760201"), 
       ("TD", "45", "00323", None, 10, "N",  "14/12/2021", "19770529", "19770529"),
@@ -44,7 +50,7 @@ actual_df = spark.createDataFrame(data=actual_data, schema=actual_schema)
 expected_df.printSchema()
 actual_df.printSchema()
 
-# CELL 2:
+# CELL 4:
 # date time formatting - https://spark.apache.org/docs/latest/sql-ref-datetime-pattern.html
 
 dictMapping = {
