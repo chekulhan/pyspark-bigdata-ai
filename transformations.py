@@ -68,7 +68,10 @@ listColumns = list(dictMapping.keys())
 # select all fields in above list - to do, remove order by
 transformed_expected_df = expected_df.select(listColumns).orderBy(col("name")) # order by only here to make it easier to view
 transformed_actual_df = actual_df.select(listColumns).orderBy(col("name"))
+
+# transform the actual dataset for this demo, so that have correct format and datatype
 transformed_actual_df = transformed_actual_df.withColumn("dob", date_format(col("dob"), "y"))
+transformed_actual_df = transformed_actual_df.withColumn("balance", col("balance").cast(DecimalType(5,2)))
 
 #apply transformation rule to TEST/EXPECTED dataset
 for field,value in dictMapping.items():
@@ -86,9 +89,9 @@ for field,value in dictMapping.items():
   elif value == "trim_rule":
     transformed_expected_df = transformed_expected_df.withColumn(field, trim(col(field)))
   elif value == "decimal_rule":
-    conditions_decimal = when(col(field).isNull(), 0).otherwise(col(field).cast(DecimalType(5,2))) # got to check for decimal places
-    #OR direct change if NO NULLS = transformed_expected_df = transformed_expected_df.withColumn(field, col(field).cast(DecimalType(5,2)))
+    conditions_decimal = when(col(field).isNull(), 0.00).otherwise(col(field)) # must use otherwise, as it populates other columns with NULL if not
     transformed_expected_df = transformed_expected_df.withColumn(field, conditions_decimal)
+    transformed_expected_df = transformed_expected_df.withColumn(field, col(field).cast(DecimalType(5,2)))
   elif value =="enddate_rule":
     conditions_enddate = when(col(field).isNull(), None).otherwise(concat(substring(col(field),1, 4), lit("-"), substring(col(field),5, 2), lit("-"), substring(col(field),7, 2)))
     transformed_expected_df = transformed_expected_df.withColumn(field, conditions_enddate)
