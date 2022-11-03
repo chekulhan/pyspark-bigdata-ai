@@ -23,6 +23,14 @@ df_emails = df_emails.withColumn("email", conditions_mask)
 
 df_emails.show(5, False)
 
+# more complex masking
+conditions_mask = (when(col("email")=="None", col("email"))
+  .when(col("email").isNotNull(), expr('concat(LEFT(email, 2) ,"****", RIGHT(email, 6))'))
+  .otherwise(col("email"))
+)
+df_emails = df_emails.withColumn("email", conditions_mask)
+df_emails.show(5, False)
+
 # data encryption using aes
 df_emails = df_emails.withColumn("encrypted_email", expr("hex(aes_encrypt(email, '1234567890abcdef', 'GCM'))"))
 df_emails.show(5, False)
