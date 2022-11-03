@@ -1,6 +1,6 @@
 
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType
-from pyspark.sql.functions import lit, col, when
+from pyspark.sql.functions import lit, col, when, expr
 
 schema = StructType([ 
     StructField("id",IntegerType(),True), 
@@ -22,3 +22,10 @@ conditions_mask = when(col("email").isNotNull(), lit("***Masked***")).otherwise(
 df_emails = df_emails.withColumn("email", conditions_mask)
 
 df_emails.show(5, False)
+
+# data encryption using aes
+df_emails = df_emails.withColumn("encrypted_email", expr("hex(aes_encrypt(email, '1234567890abcdef', 'GCM'))"))
+df_emails.show(5, False)
+
+df_emails = df_emails.withColumn("decrypted_email", expr("aes_decrypt(unhex(encrypted_email), '1234567890abcdef', 'GCM')").cast(StringType()))
+df_emails.show(10, False)
